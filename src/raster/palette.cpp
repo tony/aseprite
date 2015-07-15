@@ -1,5 +1,5 @@
 /* Aseprite
- * Copyright (C) 2001-2014  David Capello
+ * Copyright (C) 2001-2015  David Capello
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -427,12 +427,7 @@ static void bestfit_init()
 
 int Palette::findBestfit(int r, int g, int b, int mask_index) const
 {
-#ifdef __GNUC__
-  register int bestfit asm("%eax");
-#else
-  register int bestfit;
-#endif
-  int i, coldiff, lowest;
+  int i, coldiff, lowest, bestfit;
 
   ASSERT(r >= 0 && r <= 255);
   ASSERT(g >= 0 && g <= 255);
