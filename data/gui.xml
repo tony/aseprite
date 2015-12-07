@@ -218,6 +218,12 @@
         <param name="action" value="in" />
       </key>
 
+      <!-- Scroll to center -->
+      <key command="Scroll" shortcut="C">
+        <param name="direction" value="center" />
+        <param name="units" value="canvas-center" />
+      </key>
+
       <!-- Scroll with arrows -->
       <key command="Scroll" shortcut="Space+Left">
         <param name="direction" value="left" />

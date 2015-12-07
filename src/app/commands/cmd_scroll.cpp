@@ -23,8 +23,9 @@ namespace app {
 
 class ScrollCommand : public Command {
 public:
-  enum Direction { Left, Up, Right, Down, };
+  enum Direction { Left, Up, Right, Down, Center, };
   enum Units {
+    CanvasCenter,
     Pixel,
     TileWidth,
     TileHeight,
@@ -64,6 +65,7 @@ void ScrollCommand::onLoadParams(const Params& params)
   else if (direction == "right") m_direction = Right;
   else if (direction == "up") m_direction = Up;
   else if (direction == "down") m_direction = Down;
+  else if (direction == "center") m_direction = Center;
 
   std::string units = params.get("units");
   if (units == "pixel") m_units = Pixel;
@@ -74,6 +76,7 @@ void ScrollCommand::onLoadParams(const Params& params)
   else if (units == "zoomed-tile-height") m_units = ZoomedTileHeight;
   else if (units == "viewport-width") m_units = ViewportWidth;
   else if (units == "viewport-height") m_units = ViewportHeight;
+  else if (units == "canvas-center") m_units = CanvasCenter;
 
   int quantity = params.get_as<int>("quantity");
   m_quantity = std::max<int>(1, quantity);
@@ -123,20 +126,33 @@ void ScrollCommand::onExecute(Context* context)
   }
 
   switch (m_direction) {
-    case Left:  delta.x = -m_quantity * pixels; break;
-    case Right: delta.x = +m_quantity * pixels; break;
-    case Up:    delta.y = -m_quantity * pixels; break;
-    case Down:  delta.y = +m_quantity * pixels; break;
+    case Left:      delta.x = -m_quantity * pixels; break;
+    case Right:     delta.x = +m_quantity * pixels; break;
+    case Up:        delta.y = -m_quantity * pixels; break;
+    case Down:      delta.y = +m_quantity * pixels; break;
   }
 
-  current_editor->setEditorScroll(scroll+delta, true);
+  if (m_direction != Center) {
+    current_editor->setEditorScroll(scroll+delta, true);
+  } else {
+    current_editor->setDefaultScroll();
+  }
 }
 
 std::string ScrollCommand::onGetFriendlyName() const
 {
-  std::string text = "Scroll " + base::convert_to<std::string>(m_quantity);
+
+  std::string text = "Scroll ";
+  if (m_units != CanvasCenter) {
+    text += base::convert_to<std::string>(m_quantity);
+  } else {
+    text += "to";
+  }
 
   switch (m_units) {
+    case CanvasCenter:
+      text += " center of canvas";
+      break;
     case Pixel:
       text += " pixel";
       break;
@@ -162,7 +178,7 @@ std::string ScrollCommand::onGetFriendlyName() const
       text += " viewport height";
       break;
   }
-  if (m_quantity != 1)
+  if (m_quantity > 1 && m_units != CanvasCenter)
     text += "s";
 
   switch (m_direction) {
