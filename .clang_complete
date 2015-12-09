@@ -1,0 +1,4 @@
+-DDEBUG
+-I ./src
+-I ./src/app
+-I /usr/local/include/
